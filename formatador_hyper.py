@@ -83,6 +83,8 @@ if arquivo_principal is not None:
     elif campanha == 'Portabilidade':
         campanha_selecionada = campanha
         valor_liberado_selecionado = 'valor_liberado_trocomax'
+        valor_parcela_selecionado = 'valor_parcela_cartao'
+        prazo_selecionado = 'prazo_cartao'
         banco_selecionado = 'banco_port'
     
     mapeamento_colunas = {        
