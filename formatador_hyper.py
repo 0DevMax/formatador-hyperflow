@@ -80,7 +80,7 @@ if arquivo_principal is not None:
         valor_parcela_selecionado = 'valor_parcela_cartao'
         prazo_selecionado = 'prazo_cartao'
         banco_selecionado = 'banco_cartao'
-    elif campanha == 'Port':
+    elif campanha == 'Portabilidade':
         campanha_selecionada = campanha
         valor_liberado_selecionado = 'valor_liberado_trocomax'
         banco_selecionado = 'banco_port'
