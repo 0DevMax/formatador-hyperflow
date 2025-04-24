@@ -57,7 +57,7 @@ df_molde = pd.DataFrame(molde)
 st.title("Formatador para disparo Hyperflow")
 st.sidebar.write("------")
 
-campanha = st.sidebar.selectbox("Tipo da Campanha:", ['Novo', 'Benefício', 'Cartão'])
+campanha = st.sidebar.selectbox("Tipo da Campanha:", ['Novo', 'Benefício', 'Cartão', 'Benefício e Cartão', 'Portabilidade'])
 
 arquivo_principal = st.file_uploader("Escolha o arquivo", type=['csv'])
 
@@ -80,6 +80,10 @@ if arquivo_principal is not None:
         valor_parcela_selecionado = 'valor_parcela_cartao'
         prazo_selecionado = 'prazo_cartao'
         banco_selecionado = 'banco_cartao'
+    elif campanha == 'Port':
+        campanha_selecionada = campanha
+        valor_liberado_selecionado = 'valor_liberado_trocomax'
+        banco_selecionado = 'banco_port'
     
     mapeamento_colunas = {        
         'id': 'FONE1',           
