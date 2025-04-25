@@ -10,7 +10,7 @@ linhas_por_df_carteira = st.sidebar.number_input("Número de linhas por DataFram
 min_linhas_ultimo_df = st.sidebar.number_input("Número mínimo de linhas para o último DataFrame:", min_value=1, value=150, step=1)
 linhas_por_df = st.sidebar.number_input("Número de linhas por DataFrame:", min_value=1, value=1000, step=1)
 
-tipo_divisao = st.sidebar.radio("Tipo de Divisão:", ['Ativação/Carteira', 'Por Convênio', 'Não Dividir'])
+tipo_divisao = st.sidebar.radio("Tipo de Divisão:", ['Ativação/Carteira', 'Por Convênio', 'Outros'])
 
 limites_zerados = [ 'govrj', 'govba']
 
@@ -74,7 +74,7 @@ if arquivo_principal is not None:
     elif campanha == 'Benefício':
         campanha_selecionada = campanha
         valor_liberado_selecionado = 'valor_liberado_beneficio'
-        valor_parcela_selecionado = 'limite_beneficio' if 'Convenio' not in limites_zerados else "R$ 0"
+        valor_parcela_selecionado = st.sidebar.selectbox("Selecione o valor da parcela:", ['limite_beneficio', 'valor_parcela_beneficio'])
         prazo_selecionado = 'prazo_beneficio'
         banco_selecionado = 'banco_beneficio'
     elif campanha == 'Cartão':
