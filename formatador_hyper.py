@@ -3,13 +3,16 @@ import pandas as pd
 import io
 import zipfile
 import unicodedata
+import openpyxl
 
 linhas_por_df_ativacao = st.sidebar.number_input("Número de linhas por DataFrame (Ativação):", min_value=1, value=1000, step=1)
 linhas_por_df_carteira = st.sidebar.number_input("Número de linhas por DataFrame (Carteira):", min_value=1, value=1000, step=1)
 min_linhas_ultimo_df = st.sidebar.number_input("Número mínimo de linhas para o último DataFrame:", min_value=1, value=150, step=1)
 linhas_por_df = st.sidebar.number_input("Número de linhas por DataFrame:", min_value=1, value=1000, step=1)
 
-tipo_divisao = st.sidebar.radio("Tipo de Divisão:", ['Ativação/Carteira', 'Outros'])
+tipo_divisao = st.sidebar.radio("Tipo de Divisão:", ['Ativação/Carteira', 'Por Convênio', 'Outros'])
+
+limites_zerados = [ 'govrj', 'govba']
 
 def remover_acentos(x):
     if pd.isna(x):
@@ -57,7 +60,7 @@ df_molde = pd.DataFrame(molde)
 st.title("Formatador para disparo Hyperflow")
 st.sidebar.write("------")
 
-campanha = st.sidebar.selectbox("Tipo da Campanha:", ['Novo', 'Benefício', 'Cartão', 'Benefício e Cartão', 'Portabilidade'])
+campanha = st.sidebar.selectbox("Tipo da Campanha:", ['Novo', 'Benefício', 'Cartão'])
 
 arquivo_principal = st.file_uploader("Escolha o arquivo", type=['csv'])
 
@@ -71,7 +74,7 @@ if arquivo_principal is not None:
     elif campanha == 'Benefício':
         campanha_selecionada = campanha
         valor_liberado_selecionado = 'valor_liberado_beneficio'
-        valor_parcela_selecionado = 'valor_parcela_beneficio'
+        valor_parcela_selecionado = 'limite_beneficio' if 'Convenio' not in limites_zerados else "R$ 0"
         prazo_selecionado = 'prazo_beneficio'
         banco_selecionado = 'banco_beneficio'
     elif campanha == 'Cartão':
@@ -80,12 +83,6 @@ if arquivo_principal is not None:
         valor_parcela_selecionado = 'valor_parcela_cartao'
         prazo_selecionado = 'prazo_cartao'
         banco_selecionado = 'banco_cartao'
-    elif campanha == 'Portabilidade':
-        campanha_selecionada = campanha
-        valor_liberado_selecionado = 'valor_liberado_trocomax'
-        valor_parcela_selecionado = 'valor_parcela_cartao'
-        prazo_selecionado = 'prazo_port'
-        banco_selecionado = 'banco_port'
     
     mapeamento_colunas = {        
         'id': 'FONE1',           
@@ -96,7 +93,8 @@ if arquivo_principal is not None:
         'campanha': 'Campanha',
         'valor_parcela': valor_parcela_selecionado,
         'prazo': prazo_selecionado,
-        'banco_destino': banco_selecionado
+        'banco_destino': banco_selecionado,
+        'convenio': 'Convenio'
     }
     
     mapeamento_bancos = {
@@ -163,17 +161,41 @@ if arquivo_principal is not None:
                         for i, df in enumerate(dfs_ativacao):
                             if len(df) > 1:
                                 campanha_valor = df['campanha'].iloc[1] if len(df) > 1 else "ativacao"
-                                nome_arquivo = f"import_hyper_{campanha_valor}_{i + 1}.csv"
-                                csv_data = df.to_csv(index=False)
-                                zf.writestr(nome_arquivo, csv_data)
+                                nome_arquivo = f"import_hyper_{campanha_valor}_{i + 1}.xlsx"
+                                excel_buffer = io.BytesIO()
+                                df.to_excel(excel_buffer, index=False)
+                                excel_buffer.seek(0)
+                                zf.writestr(nome_arquivo, excel_buffer.getvalue())
                         
                         # Processar arquivos de carteira
                         for i, df in enumerate(dfs_carteira):
                             if len(df) > 1:
                                 campanha_valor = df['campanha'].iloc[1] if len(df) > 1 else "carteira"
-                                nome_arquivo = f"import_hyper_{campanha_valor}_{i + 1}.csv"
-                                csv_data = df.to_csv(index=False)
-                                zf.writestr(nome_arquivo, csv_data)
+                                nome_arquivo = f"import_hyper_{campanha_valor}_{i + 1}.xlsx"
+                                excel_buffer = io.BytesIO()
+                                df.to_excel(excel_buffer, index=False)
+                                excel_buffer.seek(0)
+                                zf.writestr(nome_arquivo.replace('.xlsx', '.xlsx'), excel_buffer.getvalue())
+            elif tipo_divisao == 'Por Convênio':
+                # Dividir por convênio
+                convenios = import_hyper_renomeado['convenio'].unique()
+                
+                st.write(f"Total de convênios: {len(convenios)}")
+                
+                with zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED) as zf:
+                    for convenio in convenios:
+                        df_convenio = import_hyper_renomeado[import_hyper_renomeado['convenio'] == convenio]
+                        dfs_convenio = dividir_dataframe(df_convenio, df_molde, linhas_por_df)
+                        
+                        st.write(f"Convênio {convenio}: {len(dfs_convenio)} arquivos")
+                        
+                        for i, df in enumerate(dfs_convenio):
+                            if len(df) > 1:
+                                nome_arquivo = f"import_hyper_convenio_{convenio}_{i + 1}.xlsx"
+                                excel_buffer = io.BytesIO()
+                                df.to_excel(excel_buffer, index=False)
+                                excel_buffer.seek(0)
+                                zf.writestr(nome_arquivo, excel_buffer.getvalue())
             else:
                 # Divisão simples do DataFrame
                 dfs = dividir_dataframe(import_hyper_renomeado, df_molde, linhas_por_df)
@@ -183,9 +205,11 @@ if arquivo_principal is not None:
                 with zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED) as zf:
                     for i, df in enumerate(dfs):
                         if len(df) > 1:
-                            nome_arquivo = f"import_hyper_{i + 1}.csv"
-                            csv_data = df.to_csv(index=False)
-                            zf.writestr(nome_arquivo, csv_data)
+                            nome_arquivo = f"import_hyper_{i + 1}.xlsx"
+                            excel_buffer = io.BytesIO()
+                            df.to_excel(excel_buffer, index=False)
+                            excel_buffer.seek(0)
+                            zf.writestr(nome_arquivo.replace('.xlsx', '.xlsx'), excel_buffer.getvalue())
             
             # Oferecer o download do arquivo zip
             zip_buffer.seek(0)
