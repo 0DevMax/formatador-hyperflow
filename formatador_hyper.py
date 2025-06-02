@@ -19,12 +19,10 @@ def remover_acentos(x):
         return x
     return unicodedata.normalize('NFKD', str(x)).encode('ascii', 'ignore').decode('utf-8')
 
-def dividir_dataframe(df, molde, linhas_por_df, min_linhas_ultimo_df=150):
+def dividir_dataframe(df, linhas_por_df, min_linhas_ultimo_df=100):
     dfs = []
     for i in range(0, len(df), linhas_por_df):
         df_temp = df.iloc[i:i + linhas_por_df].copy()
-        # Add template at beginning and end
-        df_temp = pd.concat([molde, df_temp, molde], ignore_index=True)
         
         # Verifica se o último DataFrame tem menos linhas que o mínimo especificado
         if i + linhas_por_df >= len(df) and len(df_temp) < min_linhas_ultimo_df:
@@ -41,20 +39,6 @@ def dividir_dataframe(df, molde, linhas_por_df, min_linhas_ultimo_df=150):
             df_temp[coluna] = df_temp[coluna].apply(lambda x: 'R$ ' + x if not x.startswith('R$ ') else x)
         
     return dfs
-
-# Definição do DataFrame molde
-molde = {
-    'id': [557197162307],
-    'name': ['Nigro'],
-    'cpf': [1234567],
-    'phone': [557197162307],
-    'valor_liberado': ['R$ 50000000'],
-    'campanha': ['tag_camp'],
-    'valor_parcela': ['R$ 50000'],
-    'prazo': [360],
-    'banco_destino': ['Gringotts']
-}
-df_molde = pd.DataFrame(molde)
 
 # Interface do Streamlit
 st.title("Formatador para disparo Hyperflow")
@@ -147,11 +131,11 @@ if arquivo_principal is not None:
                 
                 # Divisão dos DataFrames
                 if len(import_hyper_ativacao) > 0:
-                    dfs_ativacao = dividir_dataframe(import_hyper_ativacao, df_molde, linhas_por_df_ativacao)
+                    dfs_ativacao = dividir_dataframe(import_hyper_ativacao, linhas_por_df_ativacao)
                     st.write(f"Arquivos de Ativação: {len(dfs_ativacao)} arquivos")
                 
                 if len(import_hyper_carteira) > 0:
-                    dfs_carteira = dividir_dataframe(import_hyper_carteira, df_molde, linhas_por_df_carteira)
+                    dfs_carteira = dividir_dataframe(import_hyper_carteira, linhas_por_df_carteira)
                     st.write(f"Arquivos de Carteira: {len(dfs_carteira)} arquivos")
                 
                 # Criar ZIP se tiver arquivos para processar
@@ -188,7 +172,7 @@ if arquivo_principal is not None:
                 with zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED) as zf:
                     for convenio in convenios:
                         df_convenio = import_hyper_renomeado[import_hyper_renomeado['convenio'] == convenio]
-                        dfs_convenio = dividir_dataframe(df_convenio, df_molde, linhas_por_df)
+                        dfs_convenio = dividir_dataframe(df_convenio, linhas_por_df)
                         
                         st.write(f"Convênio {convenio}: {len(dfs_convenio)} arquivos")
                         
@@ -201,7 +185,7 @@ if arquivo_principal is not None:
                                 zf.writestr(nome_arquivo, excel_buffer.getvalue())
             else:
                 # Divisão simples do DataFrame
-                dfs = dividir_dataframe(import_hyper_renomeado, df_molde, linhas_por_df)
+                dfs = dividir_dataframe(import_hyper_renomeado, linhas_por_df)
                 st.write(f"Total de arquivos: {len(dfs)}")
                 
                 # Criar ZIP com os arquivos
