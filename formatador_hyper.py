@@ -122,9 +122,9 @@ if arquivo_principal is not None:
                 import_hyper_carteira = import_hyper_renomeado[import_hyper_renomeado['campanha'].str.endswith('csapp')]
                 
                 # Mostrar informações
-                st.write(f"Total de registros: {len(import_hyper_renomeado)}")
-                st.write(f"Registros de ativação: {len(import_hyper_ativacao)}")
-                st.write(f"Registros de carteira: {len(import_hyper_carteira)}")
+                st.write(f"Total de leads: {len(import_hyper_renomeado)}")
+                st.write(f"Leads Ativação: {len(import_hyper_ativacao)}")
+                st.write(f"Leads Carteira: {len(import_hyper_carteira)}")
                 
                 # Dividir e criar arquivos
                 dfs_ativacao = []
