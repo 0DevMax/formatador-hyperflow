@@ -83,7 +83,7 @@ if arquivo_principal is not None:
     
     mapeamento_bancos = {
         2: 'MeuCash',
-        243: 'Master',,
+        243: 'Master',
         318: 'BMG',
         389: 'Mercantil',
         422: 'Safra',
