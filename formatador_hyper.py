@@ -53,18 +53,21 @@ if arquivo_principal is not None:
         campanha_selecionada = campanha
         valor_liberado_selecionado = 'valor_liberado_emprestimo'
         valor_parcela_selecionado = 'valor_parcela_emprestimo'
+        comissao_selecionada = 'comissao_emprestimo'
         prazo_selecionado = 'prazo_emprestimo'
         banco_selecionado = 'banco_emprestimo'
     elif campanha == 'Benefício':
         campanha_selecionada = campanha
         valor_liberado_selecionado = 'valor_liberado_beneficio'
         valor_parcela_selecionado = st.sidebar.selectbox("Selecione o valor da parcela:", ['limite_beneficio', 'valor_parcela_beneficio'])
+        comissao_selecionada = 'comissao_beneficio'
         prazo_selecionado = 'prazo_beneficio'
         banco_selecionado = 'banco_beneficio'
     elif campanha == 'Cartão':
         campanha_selecionada = campanha
         valor_liberado_selecionado = 'valor_liberado_cartao'
         valor_parcela_selecionado = st.sidebar.selectbox("Selecione o valor da parcela:", ['limite_cartao', 'valor_parcela_cartao'])
+        comissao_selecionada = 'comissao_cartao'
         prazo_selecionado = 'prazo_cartao'
         banco_selecionado = 'banco_cartao'
     
@@ -76,6 +79,7 @@ if arquivo_principal is not None:
         'valor_liberado': valor_liberado_selecionado,
         'campanha': 'Campanha',
         'valor_parcela': valor_parcela_selecionado,
+        'comissao': comissao_selecionada
         'prazo': prazo_selecionado,
         'banco_destino': banco_selecionado,
         'convenio': 'Convenio'
