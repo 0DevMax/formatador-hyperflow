@@ -79,7 +79,7 @@ if arquivo_principal is not None:
         'valor_liberado': valor_liberado_selecionado,
         'campanha': 'Campanha',
         'valor_parcela': valor_parcela_selecionado,
-        'comissao': comissao_selecionada
+        'comissao': comissao_selecionada,
         'prazo': prazo_selecionado,
         'banco_destino': banco_selecionado,
         'convenio': 'Convenio'
