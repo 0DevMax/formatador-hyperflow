@@ -93,6 +93,7 @@ if arquivo_principal is not None:
         389: 'Mercantil',
         422: 'Safra',
         623: 'Pan',
+        654: 'Digimais',
         707: 'Daycoval',
         6613: 'VemCard'
     }
