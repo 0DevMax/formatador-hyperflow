@@ -36,7 +36,6 @@ def dividir_dataframe(df, linhas_por_df, min_linhas_ultimo_df=100):
         # Format monetary values
         for coluna in ['valor_liberado', 'valor_parcela']:
             df_temp[coluna] = df_temp[coluna].astype(str)
-            df_temp[coluna] = df_temp[coluna].apply(lambda x: 'R$ ' + x if not x.startswith('R$ ') else x)
         
     return dfs
 
