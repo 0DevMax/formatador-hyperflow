@@ -45,8 +45,7 @@ st.sidebar.write("------")
 
 campanha = st.sidebar.selectbox("Tipo da Campanha:", ['Novo', 'Benefício', 'Cartão'])
 
-arquivo_principal = st.file_uploader("Escolha o arquivo", type=['csv'], accept_multiple_files=True)
-
+arquivo_principal = st.file_uploader("Escolha o arquivo", type=['csv'])
 if arquivo_principal is not None:
     if campanha == 'Novo':
         campanha_selecionada = campanha
